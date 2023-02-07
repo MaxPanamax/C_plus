@@ -1,0 +1,534 @@
+Задача 1
+Рекурсия. У покупателя есть n монет достоинством H(1),..., H(n).
+ У продавца есть m монет достоинством B(1),...,B(l). 
+Может ли купить покупатель вещь стоимости S так, 
+чтобы у продавца нашлась точная сдача (если она необходима)
+_______________________________________--
+
+#include <iostream> 
+using namespace std;
+int main()
+{
+    system("chcp 1251");
+
+    int i, * mas, * mas1, Prodovec, Pokup, tmp, S, sum = 0, j;
+    cout << " Введите количество разных монет у пакупателя: Покупатель- ";
+    cin >> Pokup;
+    mas1 = new int[Pokup];
+    for (i = 0; i < Pokup; i++)
+    {
+        cout << " Монеты достоинством B(" << i + 1 << ")= ";
+        cin >> mas1[i];
+        sum += mas1[i];
+    }
+    mas = new int[sum + 1];
+    mas[0] = 1;
+    for (i = 0; i <= sum; i++)
+        mas[i] = 0;
+    for (i = 0; i < Pokup; i++)
+    {
+        for (j = sum - 1; j >= 0; j--)
+            if (mas[j] == 1 && j + mas1[i] <= sum)
+                mas[j + mas1[i]] = 1;
+        mas[mas1[i]] = 1;
+    }
+    cout << " Ведите количество разных монет у продовца: Продовец- ";
+    cin >> Prodovec;
+    for (i = 0; i < Prodovec; i++)
+    {
+        cout << " Монеты достоинством B(" << i + 1 << ")= ";
+        cin >> tmp;
+        for (j = 0; j <= sum; j++)
+            if (mas[j] && j - tmp >= 0)
+                mas[j - tmp] = 1;
+    }
+    cout << " Стоимось покупки: сумма- ";
+    cin >> S;
+    if (S<0 || S>sum)
+        cout << " Не может" << endl;
+    else
+        if (mas[S] == 0)
+            cout << " Не может " << endl;
+        else
+            cout << " Может " << endl;
+    delete[] mas1;
+    delete[] mas;
+    return 0;
+}
+
+____________________________
+У покупателя есть n монет достоинством H(1),..., H(n). У продавца есть m монет достоинством B(1),...,B(l). 
+Может ли купить покупатель вещь стоимости S так, чтобы у продавца нашлась точная сдача (если она необходима).
+
+ 
+
+[Решение]
+
+Если S>H(1)+...+H(n), то сумму выплатить нельзя.
+
+Если покупатель отдаст все свои купюры продавцу, то понятно, что для решения исходной задачи надо определить, 
+может ли продавец вернуть сумму H(1)+...+H(n)+B(1)+...+B(l)-S, используя любые имеющиеся теперь у него купюры M[i] (его и покупателя).
+ Для этого удобно отсортировать купюры согласно их достоинства в порядке неубывания.
+
+Пусть P=M[1]+M[2]+ ... +M[n+l].
+
+Решим чуть более общую задачу: найдем все непредставимые данными купюрами суммы на промежутке от 0 до P.
+
+Заведем массив A[0 .. P] натуральных чисел. Элемент A[i]=1, если мы можем выплатить сумму i (т.е. существует набор купюр суммарного достоинства i),
+ и A[i]=0 иначе.
+
+Будем строить всевозможные суммы, используя последовательно 0,1,2,...,N купюр.
+
+Очевидно, что сумма из ноля купюр - это ноль, поэтому сначала A[0]=1.
+
+Предположим, что мы нашли всевозможные суммы, которые можно составить, используя не более (k-1) - ой купюры M[1], ..., M[K-1].
+ Добавим еще одну купюру M[k].
+
+Теперь мы можем выплатить следующие суммы:
+
+1) Все суммы, которые можно было составить с помощью купюр M[1], ... , M[K-1].
+
+2) Все суммы, которые можно было составить с помощью купюр M[1], ... , M[K-1], увеличенные на M[K].
+
+Расстановка новых пометок в массиве A может выглядеть следующим образом:
+
+for i:=P-M[K] downto 0 do
+
+if A[i]=1
+
+then A[i+M[K]]:=1;
+
+Мы проходим по массиву справа налево для того, чтобы не использовать повторно впервые образованную на данном шаге сумму.
+
+После выполнения n+l шагов алгоритм заканчивает работу.
+
+Если известно, что H(1)+...+H(n)+B(1)+...+B(l)-S не превосходит некоторой константы D, то тогда массив A имеет смысл брать не из P, а из D элементов.
+
+
+
+____________________________---
+#include <iostream> 
+#include <Windows.h>
+
+using namespace std;
+//
+////1)Если S>H(1)+...+H(n), то сумму выплатить нельз
+////2)H(1)+...+H(n)+B(1)+...+B(l)-S, используя любые имеющиеся теперь у него купюры M[i] (его и покупателя)
+////3) P=M[1]+M[2]+ ... +M[n+l].
+////Ну здесь просто переборная задача!
+////Сначала перебирается есть ли вариант без сдачи, а потом варианты со сдачей.
+////Если нашлось - то купил
+//void pokupatel(int monety[],long size, int summa);
+//void prodovec(int monety[],long size, int summa);
+//int main()
+//{
+//    system("chcp 1251");
+//   int kolichestvo1;
+//    
+//
+//    cout << " Введите количество монет у покупателя: " << endl;
+//    cin >> kolichestvo1;
+//
+//    return 0;
+//}
+//void pokupatel(int monety[],long size, int summa)
+//{
+//for(int i=0;i<size;i++)
+//
+//}
+//void prodovec(int monety[],long size, int summa)
+//{
+//
+//}
+//#include <iostream>
+//using namespace std;
+//
+//int main()
+//{
+//    int arr[10];
+//
+//    cout << " "<<endl;
+//    for (int i = 0; i < 10; i++)
+//        cin >> arr[i];
+//
+//    for (int i = 0; i < 10; i++)
+//        cout << arr[i] << " ";
+//
+//    return 0;
+//}
+template <class T>
+int summa1(T *arr, int size)
+{
+    if (*arr<size)
+        return *arr + summa1(*arr + 1, size);
+    //return (size == 1) ? *arr : (arr[size - 1] > arr[0]) ? max_value(++arr, --size) : max_value(arr, --size);
+}
+
+int main()
+{
+    system("chcp 1251");
+
+    int a, b, sum=0, *mas, *mas1;
+    int s;
+    
+    cout << "Введите количество монет покупателя: "<<endl;
+    cin >> a;
+    cout << "Введите количество монет продовца: "<<endl;
+    cin >> b;
+    cout << "Введите сумму покупки: " << endl;
+    cin >> s;
+    mas = new int[a];
+    for (int i = 0; i < a; i++)
+    {
+        cout << " Монеты достоинством B(" << i + 1 << ")= ";
+        cin >> mas[i];
+        sum += mas[i];
+    }
+    summa1(mas, a);
+    summa1(mas1, b);
+        if (s > summa1(mas, a))
+        cout << " Нет " << endl;
+    else
+        if (s <= (summa1(mas, a) + summa1(mas1, b)))
+        cout << " Да " << endl;
+    else
+         cout << " Нет " << endl;
+    return 0;
+}
+//#include <stdio.h>
+//
+//int max_value(int* arr, int size)
+//{
+//    return (size == 1) ? *arr : (arr[size - 1] > arr[0]) ? max_value(++arr, --size) : max_value(arr, --size);
+//}
+//
+//#define SIZE 10
+//int main(void) {
+//    int arr[SIZE] = { 0, 3, 6, 2, 1, 4, 9, 8, 7, 5 }, i;
+//    printf("Array: ");
+//    for (i = 0; i < SIZE; ++i)
+//        printf("%d%c", arr[i], (i < SIZE - 1) ? ' ' : '\n');
+//    printf("Maximum value is %d\n", max_value(arr, SIZE));
+//    return 0;
+//}
+____________________________________---
+решение но не окончательное!!!!!!!!!!!!!!!!!!!!
+_________________________-
+#include <iostream> 
+#include <Windows.h>
+
+using namespace std;
+
+   int Sum(int i, int A[], int n);//текущее значение итератора i;
+   int poisk(int arr[], int key, int n);                               //массив A;
+                               //количество элементов массива n.
+int main()
+{
+    system("chcp 1251");
+
+    int a, b, sum = 0, * mas, * mas1;
+    int s;
+    int i{};
+    int z;
+    cout << "Введите количество монет покупателя: " << endl;
+    cin >> a;
+    
+    mas = new int[a];
+    for (int i = 0; i < a; i++)
+    {
+        cout << " Монеты достоинством B(" << i + 1 << ")= ";
+        cin >> mas[i];
+        sum += mas[i];
+    }
+    cout << "Введите количество монет продовца: " << endl;
+    cin >> b;
+    
+    mas1 = new int[b];
+    for (int i = 0; i < b; i++)
+    {
+        cout << " Монеты достоинством B(" << i + 1 << ")= ";
+        cin >> mas1[i];
+        sum += mas1[i];
+    }
+    cout << "Введите сумму покупки: " << endl;
+    cin >> s;
+    Sum(i,mas, a);
+    Sum(i,mas1, b);
+    
+    if (s > Sum(i,mas, a))
+        cout << " Нет " << endl;
+
+    z = Sum(i, mas, a) - s;
+    cout << z << endl;
+    poisk(mas1,z, b);
+  
+    return 0;
+}
+
+int Sum(int i, int A[], int n)
+{
+    if (i == n - 1)
+        return A[i];
+    else
+        return A[i] + Sum(i + 1, A, n);
+}
+int poisk(int *arr,int key, int n)
+{
+    
+    
+        for (int i = 0; i < n; ++i)
+        {
+            if (arr[i] == key)
+                return true;
+            cout << " Да ";
+        }
+        return false;
+        cout << " Нет ";
+   
+    return 0;
+}
+___________________
+Задача 1
+Рекурсия. У покупателя есть n монет достоинством H(1),..., H(n).
+ У продавца есть m монет достоинством B(1),...,B(l). 
+Может ли купить покупатель вещь стоимости S так, 
+чтобы у продавца нашлась точная сдача (если она необходима)
+________________________________________________________
+#include <iostream> 
+#include <Windows.h>
+
+using namespace std;
+
+int Sum(int i, int A[], int n);//текущее значение итератора i;
+int check(int massive[], int chsl);                              //массив A;
+int a,b;                            //количество элементов массива n.
+int main()
+{
+    system("chcp 1251");
+
+    int  sum = 0, * mas, * mas1;
+    int s;
+    int i{};
+    int z;
+    cout << "Введите количество монет покупателя: " << endl;
+    cin >> a;
+
+    mas = new int[a];
+    for (int i = 0; i < a; i++)
+    {
+        cout << " Монеты достоинством B(" << i + 1 << ")= ";
+        cin >> mas[i];
+        sum += mas[i];
+    }
+    cout << "Введите количество монет продовца: " << endl;
+    cin >> b;
+
+    mas1 = new int[b];
+    for (int i = 0; i < b; i++)
+    {
+        cout << " Монеты достоинством B(" << i + 1 << ")= ";
+        cin >> mas1[i];
+        sum += mas1[i];
+    }
+    cout << "Введите сумму покупки: " << endl;
+    cin >> s;
+    Sum(i, mas, a);
+    Sum(i, mas1, b);
+
+    if (s > Sum(i, mas, a))
+        cout << " Нет " << endl;
+
+    z = Sum(i, mas, a) - s;
+    cout << z << endl;
+   
+    int  l;
+    l = check(mas1, z);
+    if (l != 0)
+        cout << "  Да продовец может дать cдачу " << endl;
+    else
+        cout << " Нет продовец не может дать cдачу " << endl;
+   
+    //// Освобождаем за собой память
+  
+    delete[] mas;
+    delete[] mas1;
+ 
+    return 0;
+}
+
+int Sum(int i, int A[], int n)
+{
+    if (i == n - 1)
+        return A[i];
+    else
+        return A[i] + Sum(i + 1, A, n);
+}
+
+
+
+int check(int massive[], int chsl)
+{
+    for (int i = 0;i < b;i++)
+    {
+        if (chsl == massive[i])
+            return 1;
+    }
+    return 0;
+}
+____________________________---
+#include <iostream>                                     
+#include <Windows.h>                                  
+
+using namespace std;
+                                                                                             
+int Sum(int i, int A[], int n);   // int Sum(текущее значение итератора "i",массив "A", количество элементов массива "n");              
+int check1(int massive[], int chMas, int chsl);           
+int check2(int massive[], int chMas, int chsl);
+int check(int massive[], int chMas, int massive1[], int chMas1, int chsl);
+int mPok, mProd,z;                 // монеты покупателя, манеты продовца,общая сумма сдачи "z"                                  
+int main()
+{
+    system("chcp 1251");
+
+    int  sum = 0, * mas, * mas1;             //массивы
+    int sPocupki;                                  //сумма покупки"s"
+    int i{};                               //текущее значение итератора 
+
+    cout << "Введите количество монет покупателя: " << endl;
+    cin >> mPok;
+
+    mas = new int[mPok];
+    for (int i = 0; i < mPok; i++)
+    {
+        cout << " Монеты достоинством B(" << i + 1 << ")= ";
+        cin >> mas[i];
+        sum += mas[i];
+    }
+    cout << " Сумма денег покупателя: " << Sum(i, mas, mPok) << endl;
+
+    cout << "Введите количество монет продовца: " << endl;
+    cin >> mProd;
+
+    mas1 = new int[mProd];
+    for (int i = 0; i < mProd; i++)
+    {
+        cout << " Монеты достоинством B(" << i + 1 << ")= ";
+        cin >> mas1[i];
+        sum += mas1[i];
+    }
+    cout << " Сумма денег продовца: " << Sum(i, mas1, mProd) << endl;
+    cout << "Введите сумму покупки: " << endl;
+    cin >> sPocupki;
+    Sum(i, mas, mPok);                    //сложили покупактеля
+    if (sPocupki > Sum(i, mas, mPok))
+    {
+        cout << " ! Покупка не возможна недостаточно средств  ! " << endl;
+        return 0;
+    }
+    else if (sPocupki == Sum(i, mas, mPok))
+    {
+        cout << " ! Покупка возможна без сдачи ! " << endl;
+        return 0;
+    }
+    else if (sPocupki < Sum(i, mas, mPok))
+        cout << " ! Покупка возможна ! " << endl;
+
+    for (size_t i = 0; i < mPok; ++i)
+    {
+        if (sPocupki == mas[i])
+        {                             //сравниваем каждой монеты покупателя
+            cout << " Монета " << i + 1 << ": " << (sPocupki == mas[i] ? " можно купить без сдачи " : "") << endl; 
+            return 0;
+        }
+        else if (sPocupki < mas[i])           // нужна сдача или нет
+            cout << " Монета " << i + 1 << ": " << (sPocupki < mas[i] ? " необходима сдача " : "") << endl;      
+        else if (sPocupki > mas[i])
+            cout << " Монета " << i + 1 << ": " << (sPocupki > mas[i] ? " невозможно купить за эту монету " : "") << endl;
+    }
+
+
+    z = Sum(i, mas, mPok) - sPocupki;
+    cout << " Общая сумма сдачи: " << z << endl;
+    check2(mas, mPok, z);
+  
+    if (z == Sum(i, mas1, mProd))
+    {
+        cout << " Продавец может выдать cдачу " << endl;
+        return 0;
+    }
+    else if (z > Sum(i, mas1, mProd))
+        cout << check(mas, mPok, mas1, mProd, sPocupki) << endl;
+    else if (z < Sum(i, mas1, mProd))
+        cout << check1(mas1,mProd, z) << endl;
+              //// Освобождаем за собой память
+
+    delete[] mas;
+    delete[] mas1;
+
+    return 0;
+}
+
+int Sum(int i, int A[], int n)                 // сложение массива
+{
+    if (i == n - 1)
+        return A[i];
+    else
+        return A[i] + Sum(i + 1, A, n);
+}
+
+int check1(int massive[], int chMas, int chsl)
+{
+    for (size_t i = 0; i < chMas; ++i)
+    {
+        if (chsl == massive[i])
+        {
+            cout << (chsl == massive[i] ? " продовец может выдать сдачу " : "") << endl; //сравниваем каждой монеты 
+            return 0;
+        }
+        else if (chsl < massive[i])
+        {
+            cout << (chsl != massive[i] ? " продовец не может выдать сдачу " : "") << endl;       
+            return 0;
+        }
+        else if (chsl > massive[i])
+        {
+            cout << (chsl > massive[i] ? " продовец не может выдать сдачу " : "") << endl;
+            return 0;
+        }
+    }
+}
+int check2(int massive[], int chMas, int chsl)
+{
+    for (size_t i = 0; i < chMas; ++i)
+    {
+        if (chsl == massive[i])
+        {
+            cout << (chsl == massive[i] ? " Можно заплатить без сдачи " : "") << endl; //сравниваем каждой монеты 
+            return 0;
+        }
+        else if (chsl < massive[i])
+        {
+            cout << (chsl != massive[i] ? " заплатить без сдачи невозможно " : "") << endl;       
+        return 0;
+        }
+    }
+}
+int check(int massive[], int chMas, int massive1[], int chMas1, int chsl)
+{
+    for (size_t i = 0; i < chMas; ++i)
+    {
+        for(size_t j = 0; j < chMas1; ++j)
+        {
+            if (massive[i] - chsl == massive1[j])
+            {
+                cout << (massive[i]-chsl == massive1[j] ? " Продовец может выдать сдачу " : "") << endl; //сравниваем каждой монеты 
+                return 0;
+            }
+            else if (massive[i]-chsl != massive1[j])
+            {
+                cout << (massive[i]-chsl != massive1[j] ? " Продовец выдать сдачу не может " : "") << endl;
+                return 0;
+            }
+        }
+    }
+}
